@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pro YouTube Multi-Player</title>
+    <link rel="icon" href="https://static.vecteezy.com/system/resources/previews/018/930/575/original/youtube-logo-youtube-icon-transparent-free-png.png" type="image/x-icon">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <style>
@@ -157,7 +158,18 @@
 
         function convertToEmbedUrl(url) {
             const videoId = url.match(/(?:v=|\/)([a-zA-Z0-9_-]{11})/)[1];
-            return `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&controls=1&modestbranding=1`;
+            return `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&controls=1&modestbranding=1&rel=0&iv_load_policy=3&fs=0&disablekb=1&playsinline=1&vq=small`;
+        }
+
+        function setLowQuality(player) {
+            const qualities = player.getAvailableQualityLevels();
+            if (qualities.includes('tiny')) {
+                player.setPlaybackQuality('tiny');
+            } else if (qualities.includes('small')) {
+                player.setPlaybackQuality('small');
+            } else if (qualities.includes('medium')) {
+                player.setPlaybackQuality('medium');
+            }
         }
 
         document.getElementById('playButton').addEventListener('click', async () => {
@@ -197,6 +209,14 @@
                     card.appendChild(iframe);
                     col.appendChild(card);
                     videoGrid.appendChild(col);
+
+                    // Set kualitas rendah setelah video dimuat
+                    iframe.onload = () => {
+                        const player = iframe.contentWindow.document.getElementById('movie_player');
+                        if (player && player.setPlaybackQuality) {
+                            setLowQuality(player);
+                        }
+                    };
                 }
             } catch {
                 alert('Format URL YouTube tidak valid!');
